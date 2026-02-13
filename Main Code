@@ -1,0 +1,1669 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+
+<!-- PWA Manifest -->
+
+<link rel="manifest" href="manifest.json">
+
+<!-- iOS PWA Support -->
+
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Mirror">
+<link rel="apple-touch-icon" href="icon-192.png">
+
+<!-- Theme color for browser chrome -->
+
+<meta name="theme-color" content="#0f1117">
+<meta name="msapplication-TileColor" content="#0f1117">
+
+<!-- Description -->
+
+<meta name="description" content="A deep, adaptive life assessment grounded in psychological research.">
+
+<title>Mirror — A Life Assessment</title>
+<style>html,body{background:#0f1117!important;color:#f0ece4!important;}</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,600;1,8..60,300;1,8..60,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   DESIGN SYSTEM
+   Palette: deep ink navy + ivory + warm amber + sage + dusty rose
+   ============================================================ */
+:root {
+  --ink:        #0f1117;
+  --ink-2:      #161b27;
+  --ink-3:      #1e2535;
+  --ivory:      #f0ece4;
+  --ivory-dim:  rgba(240,236,228,0.82);
+  --ivory-mute: rgba(240,236,228,0.52);
+  --ivory-ghost:rgba(240,236,228,0.38);
+  --amber:      #d4a853;
+  --amber-dim:  rgba(212,168,83,0.22);
+  --amber-glow: rgba(212,168,83,0.08);
+  --sage:       #7aab8a;
+  --sage-dim:   rgba(122,171,138,0.18);
+  --rose:       #c47a85;
+  --rose-dim:   rgba(196,122,133,0.18);
+  --blue-soft:  #7a9fc4;
+  --border:     rgba(240,236,228,0.08);
+  --border-med: rgba(240,236,228,0.14);
+}
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+html {
+scroll-behavior: smooth;
+background: #0f1117 !important;
+color-scheme: dark;
+}
+
+body {
+background: #0f1117 !important;
+background-color: #0f1117 !important;
+color: #f0ece4 !important;
+font-family: ‘Source Serif 4’, Georgia, serif;
+min-height: 100vh;
+overflow-x: hidden;
+cursor: default;
+}
+
+/* Atmospheric depth layers */
+.bg-layer {
+position: fixed; inset: 0; pointer-events: none; z-index: 0;
+}
+.bg-layer-1 {
+background:
+radial-gradient(ellipse 80% 60% at 15% 10%, rgba(212,168,83,0.055) 0%, transparent 60%),
+radial-gradient(ellipse 60% 70% at 85% 90%, rgba(122,171,138,0.04) 0%, transparent 55%),
+radial-gradient(ellipse 100% 40% at 50% 50%, rgba(122,163,196,0.025) 0%, transparent 70%);
+animation: bg-breathe 18s ease-in-out infinite;
+}
+.bg-layer-2 {
+background: radial-gradient(ellipse 50% 50% at 70% 20%, rgba(196,122,133,0.03) 0%, transparent 50%);
+animation: bg-breathe 24s ease-in-out infinite reverse;
+}
+@keyframes bg-breathe {
+0%,100% { opacity:.7; }
+50% { opacity:1; }
+}
+
+/* Subtle paper grain */
+.bg-grain {
+position: fixed; inset: 0; pointer-events: none; z-index: 1; opacity:.018;
+background-image: url(“data:image/svg+xml,%3Csvg xmlns=‘http://www.w3.org/2000/svg’ width=‘300’ height=‘300’%3E%3Cfilter id=‘g’%3E%3CfeTurbulence type=‘fractalNoise’ baseFrequency=’.85’ numOctaves=‘4’ stitchTiles=‘stitch’/%3E%3CfeColorMatrix type=‘saturate’ values=‘0’/%3E%3C/filter%3E%3Crect width=‘300’ height=‘300’ filter=‘url(%23g)’ opacity=‘1’/%3E%3C/svg%3E”);
+background-repeat: repeat;
+}
+
+/* –– LAYOUT –– */
+#app {
+position: relative; z-index: 2;
+max-width: 760px;
+margin: 0 auto;
+padding: 0 28px;
+min-height: 100vh;
+display: flex; flex-direction: column; justify-content: center;
+}
+
+.screen {
+display: none;
+flex-direction: column;
+animation: screen-in .65s cubic-bezier(.16,1,.3,1) forwards;
+}
+.screen.active { display: flex; }
+
+@keyframes screen-in {
+from { opacity:0; transform: translateY(28px); }
+to   { opacity:1; transform: translateY(0); }
+}
+
+/* ============================================================
+INTRO SCREEN
+============================================================ */
+#intro {
+align-items: center;
+text-align: center;
+gap: 36px;
+padding: 80px 0;
+}
+
+.emblem {
+width: 80px; height: 80px;
+position: relative;
+margin: 0 auto;
+}
+.emblem-outer {
+position: absolute; inset: 0;
+border: 1px solid var(–amber);
+border-radius: 50%;
+opacity: .6;
+animation: emblem-spin 20s linear infinite;
+}
+.emblem-inner {
+position: absolute; inset: 14px;
+border: 1px solid rgba(212,168,83,.3);
+border-radius: 50%;
+animation: emblem-spin 14s linear infinite reverse;
+}
+.emblem-core {
+position: absolute; inset: 26px;
+background: var(–amber-glow);
+border-radius: 50%;
+border: 1px solid var(–amber-dim);
+display: flex; align-items: center; justify-content: center;
+}
+.emblem-core svg {
+width: 16px; height: 16px;
+stroke: var(–amber); fill: none; stroke-width: 1.5;
+}
+@keyframes emblem-spin {
+to { transform: rotate(360deg); }
+}
+
+.intro-eyebrow {
+font-family: ‘JetBrains Mono’, monospace;
+font-size: .6rem;
+letter-spacing: .28em;
+text-transform: uppercase;
+color: var(–amber);
+opacity: .75;
+}
+
+.intro-title {
+font-family: ‘Playfair Display’, Georgia, serif;
+font-size: clamp(3.6rem, 9vw, 6rem);
+font-weight: 400;
+letter-spacing: .04em;
+line-height: .95;
+color: var(–ivory);
+}
+.intro-title em {
+font-style: italic;
+color: var(–amber);
+}
+
+.intro-divider {
+width: 48px; height: 1px;
+background: linear-gradient(to right, transparent, var(–amber), transparent);
+margin: 0 auto;
+}
+
+.intro-body {
+font-size: 1.1rem;
+font-weight: 300;
+line-height: 1.85;
+color: var(–ivory-dim);
+max-width: 500px;
+letter-spacing: .01em;
+}
+
+/* Framework badges */
+.framework-list {
+display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;
+max-width: 520px;
+}
+.fw-badge {
+font-family: ‘JetBrains Mono’, monospace;
+font-size: .55rem;
+letter-spacing: .14em;
+text-transform: uppercase;
+color: var(–ivory-mute);
+padding: 5px 11px;
+border: 1px solid var(–border);
+border-radius: 2px;
+transition: border-color .3s, color .3s;
+}
+.fw-badge:hover {
+border-color: var(–border-med);
+color: var(–ivory-dim);
+}
+
+.intro-meta {
+font-family: ‘JetBrains Mono’, monospace;
+font-size: .58rem;
+letter-spacing: .14em;
+color: var(–ivory-ghost);
+text-transform: uppercase;
+}
+
+/* ============================================================
+PRIMARY BUTTON
+============================================================ */
+.btn-primary {
+display: inline-block;
+background: transparent;
+border: 1px solid var(–amber);
+color: var(–amber);
+font-family: ‘JetBrains Mono’, monospace;
+font-size: .65rem;
+letter-spacing: .22em;
+text-transform: uppercase;
+padding: 17px 44px;
+cursor: pointer;
+position: relative;
+overflow: hidden;
+transition: color .35s;
+border-radius: 2px;
+}
+.btn-primary::after {
+content: ‘’;
+position: absolute; inset: 0;
+background: var(–amber);
+transform: translateX(-101%);
+transition: transform .35s cubic-bezier(.77,0,.175,1);
+}
+.btn-primary:hover::after { transform: translateX(0); }
+.btn-primary:hover { color: var(–ink); }
+.btn-primary span { position: relative; z-index: 1; }
+.btn-primary:disabled {
+opacity: .3; cursor: not-allowed;
+pointer-events: none;
+}
+
+.btn-ghost {
+background: none; border: none;
+color: var(–ivory-mute);
+font-family: ‘JetBrains Mono’, monospace;
+font-size: .58rem; letter-spacing: .14em;
+text-transform: uppercase; cursor: pointer;
+transition: color .2s;
+padding: 4px 0;
+}
+.btn-ghost:hover { color: var(–ivory-dim); }
+
+.btn-outline {
+background: transparent;
+border: 1px solid var(–border-med);
+color: var(–ivory-dim);
+font-family: ‘JetBrains Mono’, monospace;
+font-size: .6rem; letter-spacing: .16em;
+text-transform: uppercase;
+padding: 13px 28px; cursor: pointer;
+transition: all .3s; border-radius: 2px;
+}
+.btn-outline:hover {
+border-color: var(–ivory-dim); color: var(–ivory);
+}
+
+/* ============================================================
+QUESTION SCREEN
+============================================================ */
+#question-screen {
+gap: 0;
+padding: 60px 0 80px;
+}
+
+/* Progress header */
+.q-header {
+display: flex; align-items: center; gap: 16px;
+margin-bottom: 56px;
+}
+.q-progress-track {
+flex: 1; height: 1px;
+background: var(–border);
+position: relative; overflow: visible;
+}
+.q-progress-fill {
+position: absolute; left:0; top:0; height: 100%;
+background: var(–amber);
+box-shadow: 0 0 10px rgba(212,168,83,.4);
+transition: width .7s cubic-bezier(.16,1,.3,1);
+}
+.q-progress-fill::after {
+content: ‘’;
+position: absolute; right:-1px; top: -3px;
+width: 7px; height: 7px;
+background: var(–amber);
+border-radius: 50%;
+box-shadow: 0 0 8px rgba(212,168,83,.6);
+}
+.q-counter {
+font-family: ‘JetBrains Mono’, monospace;
+font-size: .58rem; letter-spacing: .12em;
+color: var(–ivory-mute); white-space: nowrap;
+}
+
+/* Category pill */
+.q-category {
+font-family: ‘JetBrains Mono’, monospace;
+font-size: .56rem; letter-spacing: .22em;
+text-transform: uppercase;
+color: var(–amber); opacity: .8;
+margin-bottom: 18px;
+display: flex; align-items: center; gap: 8px;
+}
+.q-category::before {
+content: ‘’;
+display: inline-block;
+width: 18px; height: 1px;
+background: var(–amber);
+opacity: .5;
+}
+
+/* Question text */
+.q-text {
+font-family: ‘Playfair Display’, Georgia, serif;
+font-size: clamp(1.5rem, 3.8vw, 2.15rem);
+font-weight: 400;
+line-height: 1.48;
+letter-spacing: .01em;
+color: var(–ivory);
+margin-bottom: 10px;
+}
+.q-text em {
+font-style: italic;
+color: var(–amber);
+}
+
+/* Psychological frame — subtle context beneath question */
+.q-frame {
+font-size: .88rem;
+font-weight: 300;
+font-style: italic;
+color: var(–ivory-mute);
+line-height: 1.6;
+margin-bottom: 32px;
+padding-left: 16px;
+border-left: 1px solid var(–border-med);
+}
+
+/* Answer textarea */
+.q-textarea-wrap {
+position: relative;
+margin-bottom: 12px;
+}
+textarea {
+width: 100%;
+background: transparent;
+border: none;
+border-bottom: 1px solid var(–border-med);
+color: var(–ivory);
+font-family: ‘Source Serif 4’, Georgia, serif;
+font-size: 1.1rem;
+font-weight: 300;
+line-height: 1.75;
+padding: 14px 0 14px;
+resize: none; outline: none;
+min-height: 130px;
+letter-spacing: .01em;
+transition: border-color .3s;
+caret-color: var(–amber);
+}
+textarea::placeholder { color: var(–ivory-ghost); font-style: italic; }
+textarea:focus { border-color: var(–amber-dim); }
+.textarea-glow {
+position: absolute; bottom: 0; left: 0; right: 0; height: 1px;
+background: linear-gradient(to right, var(–amber), var(–blue-soft));
+opacity: 0;
+transition: opacity .4s;
+}
+textarea:focus ~ .textarea-glow { opacity: .6; }
+
+.q-hint {
+font-family: ‘JetBrains Mono’, monospace;
+font-size: .54rem; letter-spacing: .14em;
+text-transform: uppercase; color: var(–ivory-ghost);
+margin-bottom: 36px;
+}
+
+.q-error {
+font-style: italic; font-size: .85rem;
+color: var(–rose); margin-bottom: 12px;
+}
+
+/* Loading state */
+.q-loading {
+display: flex; align-items: center; gap: 12px;
+color: var(–ivory-mute); font-style: italic; font-size: .92rem;
+margin-bottom: 24px;
+}
+.dots span {
+display: inline-block; width: 4px; height: 4px;
+border-radius: 50%; background: var(–amber);
+margin: 0 2px;
+animation: dot-pulse 1.3s ease-in-out infinite;
+}
+.dots span:nth-child(2) { animation-delay: .2s; }
+.dots span:nth-child(3) { animation-delay: .4s; }
+@keyframes dot-pulse {
+0%,80%,100% { transform:scale(.7); opacity:.3; }
+40% { transform:scale(1.1); opacity:1; }
+}
+
+.q-footer {
+display: flex; justify-content: space-between; align-items: center;
+}
+
+/* ============================================================
+ANALYZING SCREEN
+============================================================ */
+#analyzing {
+align-items: center; text-align: center;
+gap: 44px; padding: 80px 0;
+}
+
+.analysis-ring-wrap {
+position: relative; width: 110px; height: 110px; margin: 0 auto;
+}
+.a-ring {
+position: absolute; border-radius: 50%; border: 1px solid;
+animation: ring-spin linear infinite;
+}
+.a-ring-1 { inset:0; border-color: rgba(212,168,83,.5); animation-duration:8s; }
+.a-ring-2 { inset:15px; border-color: rgba(122,171,138,.35); animation-duration:5s; animation-direction:reverse; }
+.a-ring-3 { inset:28px; border-color: rgba(196,122,133,.25); animation-duration:11s; }
+.a-ring-core {
+position: absolute; inset:40px;
+background: radial-gradient(circle, rgba(212,168,83,.15), transparent 80%);
+border-radius: 50%;
+animation: core-breathe 3s ease-in-out infinite;
+}
+@keyframes ring-spin { to { transform:rotate(360deg); } }
+@keyframes core-breathe {
+0%,100% { transform:scale(.9); opacity:.6; }
+50% { transform:scale(1.1); opacity:1; }
+}
+
+.analyzing-label {
+font-family: ‘Playfair Display’, Georgia, serif;
+font-size: 1.4rem; font-weight: 400;
+font-style: italic; color: var(–ivory-dim);
+letter-spacing: .04em;
+}
+
+.analysis-steps {
+display: flex; flex-direction: column; gap: 10px;
+font-family: ‘JetBrains Mono’, monospace;
+font-size: .58rem; letter-spacing: .14em;
+text-transform: uppercase;
+color: var(–ivory-mute);
+}
+.a-step {
+opacity: 0;
+animation: step-in .5s ease forwards;
+display: flex; align-items: center; gap: 10px;
+justify-content: center;
+}
+.a-step::before { content: ‘→’; color: var(–amber); }
+@keyframes step-in { to { opacity: 1; } }
+
+/* ============================================================
+RESULTS SCREEN
+============================================================ */
+#results {
+gap: 64px;
+padding: 64px 0 120px;
+}
+
+/* Results header */
+.r-header { text-align: center; }
+.r-eyebrow {
+font-family: ‘JetBrains Mono’, monospace;
+font-size: .58rem; letter-spacing: .22em;
+text-transform: uppercase; color: var(–amber);
+opacity: .7; margin-bottom: 14px;
+}
+.r-title {
+font-family: ‘Playfair Display’, Georgia, serif;
+font-size: clamp(2.4rem, 6vw, 4rem);
+font-weight: 400; line-height: 1.1;
+margin-bottom: 16px;
+}
+.r-title em { font-style: italic; color: var(–amber); }
+.r-headline {
+font-size: 1.08rem; font-weight: 300; font-style: italic;
+color: var(–ivory-dim); line-height: 1.6;
+max-width: 560px; margin: 0 auto;
+letter-spacing: .01em;
+}
+
+/* Section header */
+.section-hd {
+display: flex; align-items: center; gap: 14px;
+margin-bottom: 22px;
+}
+.section-hd-label {
+font-family: ‘JetBrains Mono’, monospace;
+font-size: .58rem; letter-spacing: .22em;
+text-transform: uppercase; color: var(–amber);
+white-space: nowrap;
+}
+.section-hd-line {
+flex: 1; height: 1px;
+background: linear-gradient(to right, var(–border-med), transparent);
+}
+
+/* –– Reflection block –– */
+.reflection-wrap {
+padding: 36px 40px;
+border: 1px solid var(–border-med);
+background: var(–amber-glow);
+position: relative; overflow: hidden;
+border-radius: 2px;
+}
+.reflection-wrap::before {
+content: ‘\201C’;
+position: absolute; top: -28px; left: 24px;
+font-family: Georgia, serif; font-size: 10rem;
+color: var(–amber); opacity: .06; line-height: 1;
+pointer-events: none;
+}
+.reflection-text {
+font-size: 1.12rem; font-weight: 300; font-style: italic;
+line-height: 1.9; color: var(–ivory-dim);
+letter-spacing: .01em;
+position: relative; z-index: 1;
+}
+.reflection-text p + p { margin-top: 1em; }
+
+/* –– Psychological Profile –– */
+.profile-grid {
+display: grid; grid-template-columns: 1fr 1fr;
+gap: 2px;
+}
+@media (max-width: 580px) { .profile-grid { grid-template-columns: 1fr; } }
+
+.profile-tile {
+padding: 28px 26px;
+background: var(–ink-2);
+border: 1px solid var(–border);
+transition: border-color .3s, background .3s;
+}
+.profile-tile:hover {
+border-color: var(–border-med);
+background: var(–ink-3);
+}
+.profile-tile-label {
+font-family: ‘JetBrains Mono’, monospace;
+font-size: .52rem; letter-spacing: .18em;
+text-transform: uppercase; color: var(–ivory-ghost);
+margin-bottom: 8px;
+}
+.profile-tile-value {
+font-family: ‘Playfair Display’, serif;
+font-size: 1.05rem; font-weight: 500;
+color: var(–ivory); margin-bottom: 10px;
+line-height: 1.3;
+}
+.profile-tile-desc {
+font-size: .88rem; font-weight: 300;
+color: var(–ivory-dim); line-height: 1.65;
+}
+.profile-tile-accent {
+display: inline-block; width: 20px; height: 2px;
+margin-bottom: 12px; border-radius: 2px;
+}
+
+/* –– Strengths / Growth Edges –– */
+.card-list { display: flex; flex-direction: column; gap: 12px; }
+
+.str-card, .edge-card {
+display: flex; gap: 20px;
+padding: 24px 26px;
+border: 1px solid var(–border);
+transition: border-color .35s, transform .3s;
+border-radius: 2px;
+background: var(–ink-2);
+}
+.str-card:hover {
+border-color: rgba(122,171,138,.3);
+transform: translateX(4px);
+}
+.edge-card:hover {
+border-color: rgba(196,122,133,.3);
+transform: translateX(4px);
+}
+
+.str-card { border-left: 2px solid var(–sage); }
+.edge-card { border-left: 2px solid var(–rose); }
+
+.card-icon {
+font-size: 1.4rem; flex-shrink: 0;
+margin-top: 2px; line-height: 1;
+}
+.card-content {}
+.card-title {
+font-family: ‘Playfair Display’, serif;
+font-size: 1.06rem; font-weight: 500;
+letter-spacing: .02em;
+margin-bottom: 6px;
+color: var(–ivory);
+}
+.card-body {
+font-size: .92rem; font-weight: 300;
+line-height: 1.75; color: var(–ivory-dim);
+}
+.card-framework {
+display: inline-block; margin-top: 10px;
+font-family: ‘JetBrains Mono’, monospace;
+font-size: .5rem; letter-spacing: .14em;
+text-transform: uppercase; color: var(–ivory-ghost);
+padding: 3px 8px;
+border: 1px solid var(–border);
+border-radius: 2px;
+}
+
+/* –– Cognitive Patterns –– */
+.pattern-list { display: flex; flex-direction: column; gap: 16px; }
+.pattern-item {
+padding: 22px 26px;
+border: 1px solid var(–border);
+background: var(–ink-2);
+position: relative; overflow: hidden;
+border-radius: 2px;
+}
+.pattern-item::before {
+content: ‘’;
+position: absolute; top:0; left:0; bottom:0; width:3px;
+background: linear-gradient(to bottom, var(–amber), var(–blue-soft));
+}
+.pattern-name {
+font-family: ‘JetBrains Mono’, monospace;
+font-size: .6rem; letter-spacing: .16em;
+text-transform: uppercase; color: var(–amber);
+margin-bottom: 8px; padding-left: 16px;
+}
+.pattern-desc {
+font-size: .92rem; font-weight: 300;
+line-height: 1.72; color: var(–ivory-dim);
+padding-left: 16px;
+}
+.pattern-evidence {
+font-style: italic; color: var(–ivory-mute);
+font-size: .85rem; margin-top: 8px;
+padding-left: 16px;
+border-left: 1px solid var(–border-med);
+margin-left: 16px;
+line-height: 1.6;
+}
+
+/* –– Life Area Scores –– */
+.area-grid {
+display: grid; grid-template-columns: 1fr 1fr;
+gap: 12px;
+}
+@media (max-width: 580px) { .area-grid { grid-template-columns: 1fr; } }
+
+.area-card {
+padding: 24px;
+background: var(–ink-2);
+border: 1px solid var(–border);
+border-radius: 2px;
+transition: border-color .3s;
+}
+.area-card:hover { border-color: var(–border-med); }
+
+.area-top {
+display: flex; justify-content: space-between; align-items: flex-start;
+margin-bottom: 14px;
+}
+.area-name {
+font-family: ‘JetBrains Mono’, monospace;
+font-size: .58rem; letter-spacing: .18em;
+text-transform: uppercase; color: var(–ivory-mute);
+}
+.area-score {
+font-family: ‘Playfair Display’, serif;
+font-size: 2.2rem; font-weight: 400;
+line-height: 1;
+}
+.area-bar-track {
+height: 2px; background: var(–border);
+position: relative; margin-bottom: 14px;
+overflow: hidden; border-radius: 2px;
+}
+.area-bar-fill {
+position: absolute; left:0; top:0; height:100%;
+border-radius: 2px;
+transition: width 1.6s cubic-bezier(.16,1,.3,1);
+}
+.area-status {
+font-family: ‘JetBrains Mono’, monospace;
+font-size: .5rem; letter-spacing: .14em;
+text-transform: uppercase; margin-bottom: 8px;
+}
+.area-note {
+font-size: .88rem; font-weight: 300;
+color: var(–ivory-dim); line-height: 1.6;
+}
+
+/* –– Values vs. Behavior Gap –– */
+.gap-list { display: flex; flex-direction: column; gap: 14px; }
+.gap-item {
+padding: 22px 26px;
+background: var(–ink-2);
+border: 1px solid var(–border);
+border-radius: 2px;
+display: grid; grid-template-columns: 1fr 40px 1fr;
+gap: 16px; align-items: center;
+}
+.gap-said {
+font-size: .9rem; font-weight: 300;
+color: var(–ivory-dim); line-height: 1.5;
+}
+.gap-said-label, .gap-doing-label {
+font-family: ‘JetBrains Mono’, monospace;
+font-size: .48rem; letter-spacing: .14em;
+text-transform: uppercase; margin-bottom: 6px;
+}
+.gap-said-label { color: var(–sage); opacity: .7; }
+.gap-doing-label { color: var(–rose); opacity: .7; }
+.gap-doing {
+font-size: .9rem; font-weight: 300;
+color: var(–ivory-dim); line-height: 1.5;
+text-align: right;
+}
+.gap-arrow {
+text-align: center; color: var(–amber);
+font-size: .9rem; opacity: .5;
+}
+
+/* –– Action Plan –– */
+.action-list { display: flex; flex-direction: column; gap: 14px; }
+.action-card {
+display: flex; gap: 20px;
+padding: 24px 26px;
+background: var(–ink-2);
+border: 1px solid var(–border);
+border-radius: 2px;
+transition: border-color .35s, transform .3s;
+}
+.action-card:hover {
+border-color: rgba(212,168,83,.2);
+transform: translateX(5px);
+}
+.action-num-wrap {
+flex-shrink: 0; display: flex; flex-direction: column;
+align-items: center; gap: 8px; padding-top: 2px;
+}
+.action-num {
+font-family: ‘JetBrains Mono’, monospace;
+font-size: .62rem; color: var(–amber);
+letter-spacing: .1em;
+}
+.action-num-line {
+width: 1px; flex: 1; min-height: 24px;
+background: linear-gradient(to bottom, var(–amber-dim), transparent);
+}
+.action-body {}
+.action-title {
+font-family: ‘Playfair Display’, serif;
+font-size: 1.05rem; font-weight: 500;
+margin-bottom: 7px; color: var(–ivory);
+}
+.action-desc {
+font-size: .9rem; font-weight: 300;
+line-height: 1.7; color: var(–ivory-dim);
+margin-bottom: 10px;
+}
+.action-why {
+font-size: .84rem; font-weight: 300;
+font-style: italic; color: var(–ivory-mute);
+line-height: 1.6; margin-bottom: 10px;
+}
+.action-meta {
+display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
+}
+.action-timeline {
+font-family: ‘JetBrains Mono’, monospace;
+font-size: .5rem; letter-spacing: .14em;
+text-transform: uppercase;
+padding: 3px 9px;
+border: 1px solid var(–amber-dim);
+color: var(–amber); border-radius: 2px;
+}
+.action-domain {
+font-family: ‘JetBrains Mono’, monospace;
+font-size: .5rem; letter-spacing: .14em;
+text-transform: uppercase;
+padding: 3px 9px;
+border: 1px solid var(–border);
+color: var(–ivory-mute); border-radius: 2px;
+}
+
+/* –– Closing Insight –– */
+.closing-wrap {
+padding: 40px;
+border: 1px solid var(–border-med);
+background: linear-gradient(135deg, rgba(212,168,83,.04) 0%, rgba(122,171,138,.03) 100%);
+border-radius: 2px; text-align: center;
+}
+.closing-text {
+font-family: ‘Playfair Display’, serif;
+font-size: 1.2rem; font-weight: 400; font-style: italic;
+line-height: 1.85; color: var(–ivory-dim);
+max-width: 540px; margin: 0 auto 20px;
+}
+.closing-attribution {
+font-family: ‘JetBrains Mono’, monospace;
+font-size: .54rem; letter-spacing: .18em;
+text-transform: uppercase; color: var(–ivory-ghost);
+}
+
+/* –– Results footer –– */
+.r-footer {
+display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;
+}
+
+/* ============================================================
+UTILITIES
+============================================================ */
+.hidden { display: none !important; }
+
+@media (max-width: 500px) {
+#app { padding: 0 20px; }
+.gap-item { grid-template-columns: 1fr; }
+.gap-arrow { display: none; }
+.gap-doing { text-align: left; }
+.reflection-wrap { padding: 28px 24px; }
+}
+
+@media print {
+body { background: #fff !important; color: #111 !important; }
+.bg-layer, .bg-grain { display: none !important; }
+#app { max-width: 100%; padding: 20px; }
+#intro, #question-screen, #analyzing { display: none !important; }
+#results { display: flex !important; padding: 0; gap: 36px; }
+.r-footer, .btn-primary, .btn-outline { display: none !important; }
+.reflection-wrap, .profile-tile, .str-card, .edge-card,
+.pattern-item, .area-card, .gap-item, .action-card,
+.closing-wrap { border-color: #ccc !important; background: #f9f9f9 !important; }
+.r-title em, .area-score, .profile-tile-value { color: #8a6a2a !important; }
+.reflection-text, .card-body, .action-desc, .action-why, .area-note, .profile-tile-desc { color: #333 !important; }
+.section-hd-label, .action-num, .pattern-name, .area-status { color: #8a6a2a !important; }
+.str-card { border-left-color: #4a8a6a !important; }
+.edge-card { border-left-color: #8a4a55 !important; }
+.area-bar-fill { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+@page { margin: 2cm; }
+}
+</style>
+
+</head>
+<body>
+<div style="position:fixed;inset:0;background:#0f1117;z-index:-1;"></div>
+<div class="bg-layer bg-layer-1"></div>
+<div class="bg-layer bg-layer-2"></div>
+<div class="bg-grain"></div>
+
+<div id="app">
+
+  <!-- ===================== INTRO ===================== -->
+
+  <div id="intro" class="screen active">
+    <div class="emblem">
+      <div class="emblem-outer"></div>
+      <div class="emblem-inner"></div>
+      <div class="emblem-core">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><path d="M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/></svg>
+      </div>
+    </div>
+
+```
+<div class="intro-eyebrow">A Life Assessment Instrument</div>
+
+<h1 class="intro-title">Mir<em>ror</em></h1>
+
+<div class="intro-divider"></div>
+
+<p class="intro-body">
+  A conversation that turns inward. Through adaptive questioning grounded in psychological research,
+  Mirror builds a portrait of your inner landscape — your strengths, your blind spots, the gaps between
+  who you are and who you intend to be — and charts a precise path forward.
+</p>
+
+<div class="framework-list">
+  <span class="fw-badge">Big Five Traits</span>
+  <span class="fw-badge">PERMA Model</span>
+  <span class="fw-badge">Locus of Control</span>
+  <span class="fw-badge">Attachment Theory</span>
+  <span class="fw-badge">Cognitive Patterns</span>
+  <span class="fw-badge">Values Alignment</span>
+  <span class="fw-badge">Self-Determination Theory</span>
+  <span class="fw-badge">Growth Mindset</span>
+  <span class="fw-badge">Maslow's Hierarchy</span>
+</div>
+
+<button class="btn-primary" onclick="startAssessment()">
+  <span>Begin Your Assessment</span>
+</button>
+
+<div class="intro-meta">20–35 minutes · entirely personal · AI-adaptive</div>
+```
+
+  </div>
+
+  <!-- ===================== QUESTION ===================== -->
+
+  <div id="question-screen" class="screen">
+    <div class="q-header">
+      <div class="q-progress-track">
+        <div class="q-progress-fill" id="progress-fill" style="width:0%"></div>
+      </div>
+      <div class="q-counter" id="q-counter">0 of 16</div>
+    </div>
+
+```
+<div id="q-body">
+  <div class="q-category" id="q-category">—</div>
+  <div class="q-text" id="q-text">Loading…</div>
+  <div class="q-frame" id="q-frame" style="display:none"></div>
+
+  <div class="q-textarea-wrap">
+    <textarea id="answer-input"
+      placeholder="Write freely and honestly. The depth of your answers shapes the depth of your analysis."
+      oninput="handleInput(this)"></textarea>
+    <div class="textarea-glow"></div>
+  </div>
+  <div class="q-hint">There are no right or wrong answers — only honest ones</div>
+
+  <div class="q-error hidden" id="q-error"></div>
+
+  <div class="q-loading hidden" id="q-loading">
+    <div class="dots"><span></span><span></span><span></span></div>
+    <span>Considering your answer…</span>
+  </div>
+</div>
+
+<div class="q-footer">
+  <button class="btn-ghost" onclick="skipQuestion()">Skip this question</button>
+  <button class="btn-primary" id="next-btn" onclick="submitAnswer()">
+    <span>Continue →</span>
+  </button>
+</div>
+```
+
+  </div>
+
+  <!-- ===================== ANALYZING ===================== -->
+
+  <div id="analyzing" class="screen">
+    <div class="analysis-ring-wrap">
+      <div class="a-ring a-ring-1"></div>
+      <div class="a-ring a-ring-2"></div>
+      <div class="a-ring a-ring-3"></div>
+      <div class="a-ring-core"></div>
+    </div>
+    <div class="analyzing-label">Assembling your portrait…</div>
+    <div class="analysis-steps" id="analysis-steps"></div>
+  </div>
+
+  <!-- ===================== RESULTS ===================== -->
+
+  <div id="results" class="screen"></div>
+
+</div>
+
+<script>
+/* ============================================================
+   ASSESSMENT ENGINE
+   ============================================================ */
+
+const TARGET_QUESTIONS = 16;
+
+// ---- Seed questions: each covers a distinct domain with psychological depth ----
+// Framing draws from CBT, narrative therapy, SDT, and motivational interviewing
+const SEED_QUESTIONS = [
+  {
+    category: "Self-Concept",
+    text: "Describe yourself — not your roles or accomplishments, but <em>the person underneath them.</em> Who is that person?",
+    frame: "Self-concept clarity is one of the strongest predictors of psychological wellbeing and resilience. This question invites you past social identity."
+  },
+  {
+    category: "Career & Purpose",
+    text: "When does your work feel <em>most meaningful</em> — and when does it feel hollow? What's the difference between those two states?",
+    frame: "Self-Determination Theory identifies autonomy, competence, and relatedness as the three core needs for intrinsic motivation."
+  },
+  {
+    category: "Relationships",
+    text: "Think about the most important person in your life right now. <em>What does your relationship with them reveal about you?</em>",
+    frame: "Attachment theory holds that our adult relationships often mirror patterns established in early bonds. The question isn't about them — it's about what you bring."
+  },
+  {
+    category: "Health & Body",
+    text: "<em>How do you treat your body</em> when things are hard? When things are good? What does the difference tell you?",
+    frame: "The body often signals what the mind denies. Physical self-care patterns are reliable indicators of how we manage stress and self-worth."
+  },
+  {
+    category: "Finances & Security",
+    text: "Describe your relationship with money — not the numbers, but <em>the feelings, the patterns, the stories you tell yourself.</em>",
+    frame: "Financial behavior is rarely about money itself. It's shaped by scarcity mindset, family scripts, fear, and identity — often unconsciously."
+  },
+  {
+    category: "Mindset & Response",
+    text: "Think of the last time something went significantly wrong in your life. <em>Walk me through what happened inside you</em> — not the events, but your internal experience.",
+    frame: "Locus of control, cognitive distortions, and emotional regulation style all reveal themselves in how we process adversity."
+  },
+  {
+    category: "Values & Integrity",
+    text: "What do you say you value most in life? <em>Does how you spend your time and energy reflect those values?</em> Be honest.",
+    frame: "Values–behavior gaps are among the most common and least acknowledged sources of chronic dissatisfaction."
+  },
+  {
+    category: "Growth & Avoidance",
+    text: "<em>What are you avoiding right now</em> — and what do you tell yourself to justify it?",
+    frame: "Avoidance is always purposeful. Understanding the function of what we avoid reveals what we most need to face."
+  },
+];
+
+const FALLBACK_POOL = [
+  { category: "Mindset & Response", text: "When you receive criticism — even fair criticism — <em>what is your first internal response?</em> What does that reveal?", frame: "Defensive or receptive responses to feedback are among the clearest indicators of ego strength and growth orientation." },
+  { category: "Relationships", text: "In which of your relationships do you feel most like your authentic self? <em>What makes that possible?</em>", frame: "Psychological safety and authentic self-expression are deeply connected to attachment security and self-acceptance." },
+  { category: "Career & Purpose", text: "If your work were taken away tomorrow, <em>who would you be?</em> What would you lose beyond income?", frame: "Identity fusion with work is common and often invisible — until disrupted." },
+  { category: "Self-Concept", text: "<em>What is the narrative you most repeat about yourself?</em> Is it serving you, or has it outlived its usefulness?", frame: "Narrative psychology suggests we live inside stories. The question is whether we authored them or inherited them." },
+  { category: "Health & Body", text: "What would change about your life if you consistently prioritized physical wellbeing? <em>What is stopping you?</em>", frame: "" },
+  { category: "Finances & Security", text: "What would you do — or stop doing — if money were not a constraint? <em>What does your answer tell you about your current life?</em>", frame: "" },
+  { category: "Growth & Avoidance", text: "Imagine your future self, five years from now, who has made all the changes you know you need to make. <em>What did they do that you haven't done yet?</em>", frame: "" },
+  { category: "Values & Integrity", text: "When have you acted in a way that contradicted your values? <em>What led to that, and what did you do with it afterward?</em>", frame: "Moral injury — the gap between who we are and who we wish to be — is often unexamined yet deeply influential." },
+];
+
+let state = {
+  answers: [],
+  questions: [...SEED_QUESTIONS],
+  qIndex: 0,
+  fallbackIdx: 0,
+};
+
+// ---- Screens ----
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => {
+    s.classList.remove('active');
+    s.style.display = '';
+  });
+  const el = document.getElementById(id);
+  el.classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function startAssessment() {
+  showScreen('question-screen');
+  renderQuestion();
+}
+
+// ---- Textarea ----
+function handleInput(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.max(130, el.scrollHeight) + 'px';
+  document.getElementById('q-error').classList.add('hidden');
+}
+
+// ---- Render current question ----
+function renderQuestion() {
+  const q = state.questions[state.qIndex];
+  const total = Math.max(state.questions.length, TARGET_QUESTIONS);
+  const pct = (state.qIndex / total) * 100;
+
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('q-counter').textContent = `${state.qIndex} of ${total}`;
+  document.getElementById('q-category').textContent = q.category;
+  document.getElementById('q-text').innerHTML = q.text;
+
+  const frameEl = document.getElementById('q-frame');
+  if (q.frame) {
+    frameEl.textContent = q.frame;
+    frameEl.style.display = '';
+  } else {
+    frameEl.style.display = 'none';
+  }
+
+  const input = document.getElementById('answer-input');
+  input.value = '';
+  input.style.height = '130px';
+  input.focus();
+
+  document.getElementById('q-error').classList.add('hidden');
+  document.getElementById('q-loading').classList.add('hidden');
+  document.getElementById('next-btn').disabled = false;
+
+  // Animate question body in
+  const body = document.getElementById('q-body');
+  body.style.animation = 'none';
+  void body.offsetHeight;
+  body.style.animation = 'screen-in .5s cubic-bezier(.16,1,.3,1) forwards';
+}
+
+// ---- Submit answer ----
+async function submitAnswer() {
+  const input = document.getElementById('answer-input');
+  const answer = input.value.trim();
+
+  if (!answer || answer.length < 8) {
+    const errEl = document.getElementById('q-error');
+    errEl.textContent = 'Please share something genuine — even a few sentences.';
+    errEl.classList.remove('hidden');
+    return;
+  }
+
+  const q = state.questions[state.qIndex];
+  state.answers.push({
+    category: q.category,
+    question: q.text.replace(/<[^>]+>/g, ''),
+    frame: q.frame || '',
+    answer,
+  });
+
+  if (state.answers.length >= TARGET_QUESTIONS) {
+    runAnalysis();
+    return;
+  }
+
+  // Get next question dynamically
+  document.getElementById('next-btn').disabled = true;
+  document.getElementById('q-loading').classList.remove('hidden');
+
+  try {
+    const next = await fetchNextQuestion();
+    state.questions.push(next);
+  } catch (e) {
+    state.questions.push(state.fallbackIdx < FALLBACK_POOL.length
+      ? FALLBACK_POOL[state.fallbackIdx++]
+      : SEED_QUESTIONS[state.answers.length % SEED_QUESTIONS.length]);
+  }
+
+  state.qIndex++;
+  renderQuestion();
+}
+
+function skipQuestion() {
+  const q = state.questions[state.qIndex];
+  state.answers.push({
+    category: q.category,
+    question: q.text.replace(/<[^>]+>/g, ''),
+    frame: '',
+    answer: '[skipped]',
+  });
+
+  if (state.answers.length >= TARGET_QUESTIONS) { runAnalysis(); return; }
+
+  state.qIndex++;
+  if (state.qIndex >= state.questions.length) {
+    state.questions.push(state.fallbackIdx < FALLBACK_POOL.length
+      ? FALLBACK_POOL[state.fallbackIdx++]
+      : SEED_QUESTIONS[state.answers.length % SEED_QUESTIONS.length]);
+  }
+  renderQuestion();
+}
+
+// ---- Fetch next adaptive question from AI ----
+async function fetchNextQuestion() {
+  const recent = state.answers.slice(-5).map(a =>
+    `Category: ${a.category}\nQ: ${a.question}\nA: ${a.answer}`
+  ).join('\n\n---\n\n');
+
+  const covered = [...new Set(state.answers.map(a => a.category))];
+  const uncovered = ['Self-Concept','Career & Purpose','Relationships','Health & Body',
+    'Finances & Security','Mindset & Response','Values & Integrity','Growth & Avoidance']
+    .filter(c => !covered.includes(c));
+
+  const prompt = `You are a licensed clinical psychologist and life coach conducting an in-depth personal assessment interview.
+
+Your role is to generate the NEXT question in this assessment, based on what the person has already shared.
+
+RECENT RESPONSES:
+${recent}
+
+UNCOVERED AREAS (prioritize these if no strong thread to follow): ${uncovered.join(', ') || 'all areas covered — go deeper'}
+
+RULES FOR YOUR QUESTION:
+1. If the person revealed something significant, psychologically rich, or emotionally resonant in their last answer, follow that thread deeper.
+2. If there are unexplored areas, transition naturally to one.
+3. Questions must probe deeper than surface-level — draw from CBT, narrative therapy, SDT, attachment theory, or Jungian concepts as appropriate.
+4. Never ask a question that could be answered with yes/no. Every question should invite reflection.
+5. The framing note (frame) should be a brief, 1-sentence psychological context that gives the person insight into why this question matters.
+6. Wrap the most important clause of the question in <em> tags.
+
+Respond ONLY in valid JSON:
+{"category": "one of: Self-Concept / Career & Purpose / Relationships / Health & Body / Finances & Security / Mindset & Response / Values & Integrity / Growth & Avoidance", "text": "question text with one <em>...</em> span", "frame": "one sentence of psychological context"}`;
+
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 1000,
+      messages: [{ role: 'user', content: prompt }]
+    })
+  });
+
+  const data = await res.json();
+  const raw = data.content[0].text.trim().replace(/```json|```/g, '').trim();
+  return JSON.parse(raw);
+}
+
+/* ============================================================
+   ANALYSIS ENGINE
+   ============================================================ */
+
+async function runAnalysis() {
+  showScreen('analyzing');
+
+  const steps = [
+    'Mapping psychological patterns',
+    'Identifying core values and conflicts',
+    'Analyzing strengths across domains',
+    'Detecting cognitive and behavioral patterns',
+    'Scoring life area health',
+    'Locating values–behavior gaps',
+    'Constructing your growth architecture',
+  ];
+
+  const stepsEl = document.getElementById('analysis-steps');
+  for (let i = 0; i < steps.length; i++) {
+    await delay(600 + i * 380);
+    const div = document.createElement('div');
+    div.className = 'a-step';
+    div.textContent = steps[i];
+    div.style.animationDelay = '0s';
+    stepsEl.appendChild(div);
+  }
+
+  await delay(800);
+
+  try {
+    const result = await fetchAnalysis();
+    renderResults(result);
+  } catch (e) {
+    renderResults(buildFallback());
+  }
+}
+
+function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+async function fetchAnalysis() {
+  const answersText = state.answers
+    .filter(a => a.answer !== '[skipped]')
+    .map(a => `[${a.category}]\nFramework context: ${a.frame || 'N/A'}\nQ: ${a.question}\nA: ${a.answer}`)
+    .join('\n\n═══\n\n');
+
+  const prompt = `You are a PhD-level clinical psychologist, life coach, and human behavioral analyst. You have just completed a comprehensive adaptive interview with a client. Your task is to produce a deep, specific, and genuinely useful psychological and life-design assessment based entirely on what they shared.
+
+INTERVIEW TRANSCRIPT:
+${answersText}
+
+CRITICAL INSTRUCTIONS:
+- Every insight must be grounded in something they actually said — not generic.
+- Be direct, honest, and specific. Avoid platitudes.
+- Where the person contradicts themselves, note it compassionately.
+- Where there is avoidance or a defensive pattern, name it gently but clearly.
+- The analysis should feel like it was written by someone who truly listened.
+- Reference psychological frameworks by name where applicable (e.g., "This reflects a fixed mindset orientation…", "What you're describing has hallmarks of anxious attachment…").
+- Scores should be calibrated to reality — a score of 85+ means genuinely thriving in that area.
+
+REQUIRED OUTPUT — valid JSON only, no markdown fences:
+{
+  "headline": "A single, specific sentence that captures the essential tension or theme of this person's life right now. Not motivational — perceptive.",
+
+  "reflection": "3–4 paragraphs of personal reflection written directly to the person. This should feel like the most insightful thing anyone has ever said to them about themselves. Specific references to what they said. Honest, warm, and precise. Use <p> tags for paragraphs.",
+
+  "psychProfile": [
+    {
+      "label": "Trait or Pattern Name (e.g. 'Locus of Control', 'Attachment Style', 'Mindset Orientation', 'Dominant Defense Mechanism', 'Core Drive')",
+      "value": "Specific assessment (e.g. 'Internal with External Drift Under Stress')",
+      "description": "2–3 sentence explanation grounded in their answers. Name the framework.",
+      "color": "#hex from palette: amber=#d4a853, sage=#7aab8a, rose=#c47a85, blue=#7a9fc4"
+    }
+    // include 4–6 profile tiles
+  ],
+
+  "strengths": [
+    {
+      "icon": "single emoji",
+      "title": "Strength name",
+      "description": "2–3 sentences. Reference specific language or themes from their answers. Name the psychological construct where relevant.",
+      "framework": "e.g. 'Big Five: High Openness' or 'SDT: Strong Competence Need'"
+    }
+    // 4–5 strengths
+  ],
+
+  "edges": [
+    {
+      "icon": "single emoji",
+      "title": "Growth edge name",
+      "description": "2–3 sentences. Compassionate but unflinching. Reference what they said. Name the pattern.",
+      "framework": "e.g. 'Cognitive Pattern: Avoidance' or 'Attachment: Preoccupied'"
+    }
+    // 3–4 edges
+  ],
+
+  "cognitivePatterns": [
+    {
+      "name": "Pattern name (e.g. 'Catastrophizing', 'Emotional Reasoning', 'All-or-Nothing Thinking', 'Avoidance Loop', 'Self-Handicapping')",
+      "description": "2 sentences explaining this pattern in their life.",
+      "evidence": "Direct quote or close paraphrase of what they said that reveals this pattern."
+    }
+    // 2–4 patterns — only include patterns that are genuinely present
+  ],
+
+  "lifeAreas": [
+    {
+      "name": "Career & Purpose",
+      "score": 0–100,
+      "color": "#d4a853",
+      "status": "e.g. 'Adrift' / 'Growing' / 'Thriving' / 'Neglected' / 'Blocked' / 'Rebuilding'",
+      "note": "1–2 honest sentences about this area based on what they shared."
+    },
+    { "name": "Relationships", "score": 0–100, "color": "#7a9fc4", "status": "...", "note": "..." },
+    { "name": "Health & Body", "score": 0–100, "color": "#7aab8a", "status": "...", "note": "..." },
+    { "name": "Finances & Security", "score": 0–100, "color": "#c47a85", "status": "...", "note": "..." },
+    { "name": "Mindset & Growth", "score": 0–100, "color": "#a08cc4", "status": "...", "note": "..." }
+  ],
+
+  "valuesGaps": [
+    {
+      "said": "What they expressed they value or want (paraphrased)",
+      "doing": "What their behavior or answers suggest they're actually doing"
+    }
+    // 2–4 gaps — only include genuine contradictions found in their answers
+  ],
+
+  "actions": [
+    {
+      "title": "Specific action title",
+      "description": "What to do, precisely. Tied directly to something they revealed.",
+      "why": "Why this action addresses a core need or gap they expressed.",
+      "timeline": "This week / This month / This quarter / Ongoing",
+      "domain": "e.g. Career / Relationships / Health / Mindset / Finances"
+    }
+    // 6–7 actions — ordered by urgency and impact
+  ],
+
+  "closingInsight": "A final, lasting insight — 2–3 sentences. Something they will return to. Not advice. A truth about who they are and what their path forward looks like. Poetic but grounded."
+}`;
+
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 4000,
+      messages: [{ role: 'user', content: prompt }]
+    })
+  });
+
+  const data = await res.json();
+  const raw = data.content[0].text.trim().replace(/```json|```/g, '').trim();
+  return JSON.parse(raw);
+}
+
+/* ============================================================
+   RENDER RESULTS
+   ============================================================ */
+function renderResults(d) {
+  const el = document.getElementById('results');
+
+  el.innerHTML = `
+
+    <!-- Header -->
+    <div class="r-header">
+      <div class="r-eyebrow">Your Personal Assessment</div>
+      <h2 class="r-title">Your <em>Mirror</em></h2>
+      <p class="r-headline">${d.headline}</p>
+    </div>
+
+    <!-- Reflection -->
+    <div>
+      <div class="section-hd">
+        <div class="section-hd-label">Personal Reflection</div>
+        <div class="section-hd-line"></div>
+      </div>
+      <div class="reflection-wrap">
+        <div class="reflection-text">${d.reflection}</div>
+      </div>
+    </div>
+
+    <!-- Psychological Profile -->
+    <div>
+      <div class="section-hd">
+        <div class="section-hd-label">Psychological Profile</div>
+        <div class="section-hd-line"></div>
+      </div>
+      <div class="profile-grid">
+        ${d.psychProfile.map(p => `
+          <div class="profile-tile">
+            <div class="profile-tile-accent" style="background:${p.color}"></div>
+            <div class="profile-tile-label">${p.label}</div>
+            <div class="profile-tile-value">${p.value}</div>
+            <div class="profile-tile-desc">${p.description}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+
+    <!-- Strengths -->
+    <div>
+      <div class="section-hd">
+        <div class="section-hd-label">Your Strengths</div>
+        <div class="section-hd-line"></div>
+      </div>
+      <div class="card-list">
+        ${d.strengths.map(s => `
+          <div class="str-card">
+            <div class="card-icon">${s.icon}</div>
+            <div class="card-content">
+              <div class="card-title">${s.title}</div>
+              <div class="card-body">${s.description}</div>
+              ${s.framework ? `<span class="card-framework">${s.framework}</span>` : ''}
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+
+    <!-- Growth Edges -->
+    <div>
+      <div class="section-hd">
+        <div class="section-hd-label">Growth Edges</div>
+        <div class="section-hd-line"></div>
+      </div>
+      <div class="card-list">
+        ${d.edges.map(e => `
+          <div class="edge-card">
+            <div class="card-icon">${e.icon}</div>
+            <div class="card-content">
+              <div class="card-title">${e.title}</div>
+              <div class="card-body">${e.description}</div>
+              ${e.framework ? `<span class="card-framework">${e.framework}</span>` : ''}
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+
+    <!-- Cognitive Patterns -->
+    ${d.cognitivePatterns && d.cognitivePatterns.length ? `
+    <div>
+      <div class="section-hd">
+        <div class="section-hd-label">Cognitive & Behavioral Patterns</div>
+        <div class="section-hd-line"></div>
+      </div>
+      <div class="pattern-list">
+        ${d.cognitivePatterns.map(p => `
+          <div class="pattern-item">
+            <div class="pattern-name">${p.name}</div>
+            <div class="pattern-desc">${p.description}</div>
+            ${p.evidence ? `<div class="pattern-evidence">"${p.evidence}"</div>` : ''}
+          </div>
+        `).join('')}
+      </div>
+    </div>` : ''}
+
+    <!-- Life Area Scores -->
+    <div>
+      <div class="section-hd">
+        <div class="section-hd-label">Life Area Health</div>
+        <div class="section-hd-line"></div>
+      </div>
+      <div class="area-grid">
+        ${d.lifeAreas.map(a => `
+          <div class="area-card">
+            <div class="area-top">
+              <div class="area-name">${a.name}</div>
+              <div class="area-score" style="color:${a.color}">${a.score}</div>
+            </div>
+            <div class="area-bar-track">
+              <div class="area-bar-fill" id="bar-${a.name.replace(/\s+/g,'')}"
+                style="width:0%; background:${a.color}"></div>
+            </div>
+            <div class="area-status" style="color:${a.color}">${a.status}</div>
+            <div class="area-note">${a.note}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+
+    <!-- Values vs Behavior Gaps -->
+    ${d.valuesGaps && d.valuesGaps.length ? `
+    <div>
+      <div class="section-hd">
+        <div class="section-hd-label">Values — Behavior Gaps</div>
+        <div class="section-hd-line"></div>
+      </div>
+      <div class="gap-list">
+        ${d.valuesGaps.map(g => `
+          <div class="gap-item">
+            <div>
+              <div class="gap-said-label">You value</div>
+              <div class="gap-said">${g.said}</div>
+            </div>
+            <div class="gap-arrow">⇄</div>
+            <div>
+              <div class="gap-doing-label">Your actions suggest</div>
+              <div class="gap-doing">${g.doing}</div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>` : ''}
+
+    <!-- Action Plan -->
+    <div>
+      <div class="section-hd">
+        <div class="section-hd-label">Your Growth Architecture</div>
+        <div class="section-hd-line"></div>
+      </div>
+      <div class="action-list">
+        ${d.actions.map((a, i) => `
+          <div class="action-card">
+            <div class="action-num-wrap">
+              <div class="action-num">0${i+1}</div>
+              <div class="action-num-line"></div>
+            </div>
+            <div class="action-body">
+              <div class="action-title">${a.title}</div>
+              <div class="action-desc">${a.description}</div>
+              <div class="action-why">${a.why}</div>
+              <div class="action-meta">
+                <span class="action-timeline">${a.timeline}</span>
+                <span class="action-domain">${a.domain}</span>
+              </div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+
+    <!-- Closing Insight -->
+    <div class="closing-wrap">
+      <div class="closing-text">${d.closingInsight}</div>
+      <div class="closing-attribution">Mirror — A Life Assessment Instrument</div>
+    </div>
+
+    <!-- Footer -->
+    <div class="r-footer">
+      <button class="btn-outline" onclick="restartAssessment()">Begin Again</button>
+      <button class="btn-primary" onclick="window.print()"><span>Save Your Report</span></button>
+    </div>
+  `;
+
+  showScreen('results');
+
+  // Animate score bars after a short delay
+  setTimeout(() => {
+    d.lifeAreas.forEach(a => {
+      const bar = document.getElementById('bar-' + a.name.replace(/\s+/g, ''));
+      if (bar) bar.style.width = a.score + '%';
+    });
+  }, 400);
+}
+
+/* ============================================================
+   FALLBACK (if API fails)
+   ============================================================ */
+function buildFallback() {
+  return {
+    headline: "Someone standing at a threshold — aware enough to ask the hard questions, brave enough to have answered them.",
+    reflection: "<p>What comes through in your answers is a person who carries a significant degree of self-awareness, yet has not fully converted that awareness into movement. You see yourself clearly in moments — but something consistently interrupts the translation from insight to action. That interruption is worth examining, because it is the central mechanism of your current stasis.</p><p>There is also a recurring tension in how you relate to others. You reach toward connection and depth, but there are walls — some conscious, some not — that regulate how close people can get. This is not a flaw. It is a protection that once served a purpose. The question now is whether the cost of maintaining it has become higher than the risk of letting it down.</p><p>Your relationship with your own potential is complex. You can see the gap between who you are and who you sense you could be, and that gap produces both motivation and suffering in roughly equal measure. The suffering tends to win when you're alone with your thoughts at night. The motivation wins in bursts. Building a life that sustains the motivation and metabolizes the suffering — that is the core work ahead of you.</p>",
+    psychProfile: [
+      { label: "Locus of Control", value: "Internal with External Drift", description: "You generally believe your outcomes depend on your choices, but under pressure you tend toward attributing difficulties to circumstances. This pattern is common in people who have faced genuine external obstacles and have learned to protect self-esteem through situational attribution.", color: "#d4a853" },
+      { label: "Mindset Orientation", value: "Mixed — Context-Dependent", description: "You show growth mindset characteristics in some domains (intellectual curiosity, openness to new ideas) and fixed mindset patterns in others (particularly around core identity traits and certain skills you've decided you lack). Dweck's research suggests this is the norm, not the exception.", color: "#7aab8a" },
+      { label: "Core Motivation Driver", value: "Meaning over Achievement", description: "Self-Determination Theory identifies meaning and relatedness as your primary motivational needs, above status or external achievement. Work and relationships feel most alive when they feel purposeful and authentic.", color: "#7a9fc4" },
+      { label: "Primary Defense Pattern", value: "Intellectualization with Avoidance", description: "When things get emotionally uncomfortable, you tend to analyze rather than feel — which is protective and also distances you from the information your emotions are trying to deliver.", color: "#c47a85" },
+    ],
+    strengths: [
+      { icon: "🔭", title: "Reflective Intelligence", description: "Your capacity for self-examination is genuinely unusual. Most people move through life without asking the questions you're asking. This metacognitive ability — thinking about how you think — is foundational to lasting change.", framework: "Big Five: High Openness to Experience" },
+      { icon: "🧭", title: "Values Clarity", description: "Beneath the behavioral inconsistencies, you have a clear and stable sense of what you believe matters. This values clarity is an anchor — it means you always have a compass, even when you don't use it.", framework: "Values Theory: Strong Normative Commitment" },
+      { icon: "🔥", title: "Intrinsic Drive", description: "When you are genuinely motivated, it comes from inside — not from external validation. This is rare and valuable. The challenge is building structures that sustain that internal fire.", framework: "SDT: Autonomous Motivation" },
+      { icon: "🤝", title: "Relational Depth Capacity", description: "You are capable of meaningful, substantive connection. The capacity is there. What varies is the willingness to risk the vulnerability that depth requires.", framework: "Attachment: Earned Secure Potential" },
+    ],
+    edges: [
+      { icon: "⚓", title: "Completion Gap", description: "There is a consistent pattern of beginning — plans, projects, changes — that does not consistently translate into sustained follow-through. This is not a character flaw; it reflects a gap between the motivating energy of novelty and the discipline structures needed to sustain momentum.", framework: "Behavioral: Implementation Intentions Deficit" },
+      { icon: "🪞", title: "Self-Compassion Deficit", description: "The standards you hold yourself to are higher than those you would apply to anyone you care about. This internal harshness functions as both motivator and saboteur — it drives you toward better and simultaneously makes the journey exhausting.", framework: "Neff's Self-Compassion Framework" },
+      { icon: "🌊", title: "Avoidance of Difficult Truths", description: "In a few key areas of your life, you have constructed explanations that protect you from confronting something you already know. The knowing is there. The action has been deferred.", framework: "Cognitive Pattern: Motivated Reasoning" },
+    ],
+    cognitivePatterns: [
+      { name: "Emotional Avoidance Loop", description: "When difficult emotions arise, you tend to redirect into analysis or planning — which feels productive but often substitutes for the direct processing the emotion requires.", evidence: "Visible in how you describe your internal experiences — often more narrative than felt." },
+      { name: "Ideal-Self Disparity", description: "The gap between your actual self and ideal self is wide and produces ongoing low-level dissatisfaction. Closing this gap requires either changing behavior or revising the ideal — both are valid responses.", evidence: "Present throughout your descriptions of where you want to be versus where you are." },
+    ],
+    lifeAreas: [
+      { name: "Career & Purpose", score: 61, color: "#d4a853", status: "Searching", note: "Capability and effort are present; direction and meaning are not fully aligned yet." },
+      { name: "Relationships", score: 68, color: "#7a9fc4", status: "Growing", note: "Genuine connection exists, but there is room for more authenticity and vulnerability." },
+      { name: "Health & Body", score: 53, color: "#7aab8a", status: "Neglected", note: "You know what you need to do. The gap between knowing and doing is the issue." },
+      { name: "Finances & Security", score: 49, color: "#c47a85", status: "Strained", note: "Avoidance patterns here are compounding over time. Clarity is the first step." },
+      { name: "Mindset & Growth", score: 72, color: "#a08cc4", status: "Your Strongest Area", note: "Your willingness to examine yourself is genuine and significant. Build from here." },
+    ],
+    valuesGaps: [
+      { said: "Authenticity and meaningful connection with others", doing: "Maintaining distance or a curated version of yourself in most relationships" },
+      { said: "Health and physical vitality as important priorities", doing: "Consistently deferring self-care when other demands arise" },
+    ],
+    actions: [
+      { title: "Name the One Thing You're Avoiding", description: "Identify the single most important thing you have been deferring. Write it down explicitly, and write one concrete action that would move it forward this week.", why: "Avoidance is consuming more cognitive and emotional energy than facing the thing would cost.", timeline: "This week", domain: "Mindset" },
+      { title: "Build a Completion Ritual", description: "Choose one project or commitment you've started and finish it before starting anything new. Document the completion.", why: "Each incompletion creates a small drain on your self-efficacy. Each completion builds it.", timeline: "This month", domain: "Career" },
+      { title: "One Unguarded Conversation", description: "Have one conversation in the next two weeks where you say something true that you would normally keep to yourself with someone who matters.", why: "Your relational capacity exceeds your current relational depth. The gap is a choice, not a limitation.", timeline: "This month", domain: "Relationships" },
+      { title: "30-Day Physical Anchor", description: "Choose the simplest possible physical health habit and do it every single day for 30 days. Smallest viable dose — consistency over intensity.", why: "Your health patterns reflect a broader pattern of treating yourself as lower priority than your obligations.", timeline: "Ongoing", domain: "Health" },
+      { title: "Financial Clarity Session", description: "Spend 90 minutes with your actual numbers — income, outgoings, debts, savings. No judgment. Just knowing.", why: "Avoidance of financial reality is rarely protective. It allows anxiety to grow in the dark.", timeline: "This week", domain: "Finances" },
+      { title: "Write Your Two-Year Vision", description: "Write one page describing your life in two years if you make the changes you already know you need to make. Be specific. Read it once a week.", why: "You have direction but not a destination. The vision creates a reference point for every decision.", timeline: "This month", domain: "Career" },
+      { title: "Practice Tolerating Discomfort", description: "Identify one area where you intellectualize instead of feeling — and for one week, when the urge to analyze arises, pause and ask: what am I actually feeling?", why: "Your emotional intelligence is high. Your emotional processing is bypassed. Reconnecting these will change everything.", timeline: "Ongoing", domain: "Mindset" },
+    ],
+    closingInsight: "The distance between who you are today and who you are capable of becoming is not measured in talent or intelligence — you have both. It is measured in the willingness to stay in the difficult moment rather than retreating to the comfortable familiar. You have already demonstrated the courage to look. What comes next is the courage to move."
+  };
+}
+
+function restartAssessment() {
+  state = {
+    answers: [],
+    questions: [...SEED_QUESTIONS],
+    qIndex: 0,
+    fallbackIdx: 0,
+  };
+  showScreen('intro');
+}
+</script>
+
+<!-- PWA Service Worker Registration -->
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js')
+      .then(reg => console.log('Mirror SW registered:', reg.scope))
+      .catch(err => console.log('SW registration failed:', err));
+  });
+}
+</script>
+
+</body>
+</html>
